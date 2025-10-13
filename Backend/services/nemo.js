@@ -1,8 +1,14 @@
 // import OpenAI from 'openai';
 const { OpenAI } = require("openai");
 
-if (require.main === module)
+if (require.main === module){
     require('dotenv').config();
+    if (!process.env.NVIDIA_API_KEY) {
+        console.error("NVIDIA_API_KEY environment variable not set.");
+        process.exit(1);
+    }
+}
+
 
 const openai = new OpenAI({
     apiKey: process.env.NVIDIA_API_KEY,
@@ -38,6 +44,8 @@ async function streamToText(prompt) {
     return final_text;
 }
 
+
+module.exports = { streamToText };
 
 //test this module
 if (require.main == module) {
