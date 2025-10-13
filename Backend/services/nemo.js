@@ -1,7 +1,7 @@
 // import OpenAI from 'openai';
 const { OpenAI } = require("openai");
 
-if (require.main === module){
+if (require.main === module) {
     require('dotenv').config();
     if (!process.env.NVIDIA_API_KEY) {
         console.error("NVIDIA_API_KEY environment variable not set.");
@@ -17,29 +17,32 @@ const openai = new OpenAI({
 
 async function streamToText(prompt) {
     const completion = await openai.chat.completions.create({
-        model: "nvidia/nvidia-nemotron-nano-9b-v2",
+        model: "nvidia/llama-3.3-nemotron-super-49b-v1.5",
         messages: [{ "role": "system", "content": `${prompt}` }],
         temperature: 0.6,
         top_p: 0.95,
-        max_tokens: 2048,
+        max_tokens: 65536,
         frequency_penalty: 0,
         presence_penalty: 0,
         stream: true,
-        extra_body: {
-            min_thinking_tokens: 1024,
-            max_thinking_tokens: 2048
-        }
     })
+
 
     let reason_text = '';
     let final_text = '';
     for await (const chunk of completion) {
-        const reasoning = chunk.choices[0]?.delta?.reasoning_content;
-        if (reasoning)
-            reason_text += reasoning;
-        else
+        // const reasoning = chunk.choices[0]?.delta?.reasoning_content;
+        // if (reasoning) {
+        //     reason_text += reasoning;
+        // }
+        // else {
             final_text += chunk.choices[0]?.delta?.content || '';
+        // }
     }
+    // console.log("Reasoning: ", reason_text);
+
+    // remove everything from <think> to </think> in final_text
+    final_text = final_text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
     return final_text;
 }
