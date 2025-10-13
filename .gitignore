@@ -1,0 +1,7 @@
+# Basic gitignore file
+# Node modules
+package-lock.json
+node_modules
+
+# env
+.env
